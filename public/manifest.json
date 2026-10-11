@@ -1,0 +1,19 @@
+{
+  "name": "Refinishing Department Daily Production Management System",
+  "short_name": "Refinishing",
+  "description": "Daily Production, Hourly Scanning & Dispatch Operations Portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e3a8a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+
+  ]
+}
