@@ -169,7 +169,7 @@ export default function DashboardPage({ selectedDate, currentUser, onNavigate })
       <div className="grid-cols-4">
         {/* Daily Target */}
         <StatCard
-          title="Daily Scanning Target"
+          title="Daily Scanning Target (Pcs)"
           value={scanningTarget.toLocaleString()}
           subtext={`Target for ${formatDateDisplay(selectedDate)}`}
           icon={Target}
@@ -177,7 +177,7 @@ export default function DashboardPage({ selectedDate, currentUser, onNavigate })
 
         {/* Total Achieved */}
         <StatCard
-          title="Total Achieved (Scanning)"
+          title="Total Achieved (Pcs)"
           value={scanningAchieved.toLocaleString()}
           subtext={`${scanningAchievementPct}% of daily target`}
           progress={scanningAchievementPct}
@@ -187,9 +187,9 @@ export default function DashboardPage({ selectedDate, currentUser, onNavigate })
 
         {/* Remaining Target */}
         <StatCard
-          title="Remaining Target"
+          title="Remaining to Produce (Pcs)"
           value={scanningRemaining.toLocaleString()}
-          subtext={scanningRemaining === 0 ? 'Target fully completed!' : 'To reach shift quota'}
+          subtext={scanningRemaining === 0 && scanningTarget > 0 ? 'Target fully completed!' : 'To reach shift quota'}
           icon={TrendingUp}
         />
 
