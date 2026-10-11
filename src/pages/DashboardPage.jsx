@@ -251,7 +251,7 @@ export default function DashboardPage({ selectedDate, currentUser, onNavigate })
 
             {requiredRunRate > 0 && scanningRemaining > 0 && (
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '4px', padding: '6px 10px', fontSize: '0.78rem', color: '#166534', marginBottom: '12px' }}>
-                ⚡ <strong>Target Pace:</strong> Produce <strong>~{requiredRunRate} units/hr</strong> across remaining {unloggedHourlyCount} hour(s) to hit the daily goal.
+                ⚡ <strong>Target Pace:</strong> Produce <strong>~{requiredRunRate} pcs/hr</strong> across remaining {unloggedHourlyCount} hour(s) to hit the daily goal.
               </div>
             )}
 
@@ -291,7 +291,7 @@ export default function DashboardPage({ selectedDate, currentUser, onNavigate })
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                   <div>
                     <div style={{ fontSize: '1.25rem', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>
-                      {latestUpdatedRecord.achieved} units{' '}
+                      {latestUpdatedRecord.achieved} pcs{' '}
                       <span style={{ fontSize: '0.85rem', fontWeight: '400', color: 'var(--color-text-subtle)' }}>
                         / {latestUpdatedRecord.target} target
                       </span>

@@ -228,7 +228,7 @@ export default function DailyTargetPage({ selectedDate, currentUser, onNavigate 
 
               <div className="form-group">
                 <label className="form-label" htmlFor="scanning-target">
-                  Daily Scanning Target <span style={{ color: '#dc2626' }}>*</span>
+                  Daily Scanning Target (Pcs) <span style={{ color: '#dc2626' }}>*</span>
                 </label>
                 <input
                   id="scanning-target"
@@ -242,12 +242,12 @@ export default function DailyTargetPage({ selectedDate, currentUser, onNavigate 
                   disabled={!isDataEntry || saving}
                   required
                 />
-                <span className="form-hint">Primary hourly scanning line quota for the day</span>
+                <span className="form-hint">Primary hourly scanning line quota (in Pcs)</span>
               </div>
 
               <div className="form-group">
                 <label className="form-label" htmlFor="batch-target">
-                  Optional Batch Target
+                  Optional Batch Target (Pcs)
                 </label>
                 <input
                   id="batch-target"
@@ -260,7 +260,7 @@ export default function DailyTargetPage({ selectedDate, currentUser, onNavigate 
                   onChange={(e) => setBatchTarget(e.target.value)}
                   disabled={!isDataEntry || saving}
                 />
-                <span className="form-hint">Secondary batch process production target</span>
+                <span className="form-hint">Secondary batch process production target (in Pcs)</span>
               </div>
             </div>
 
@@ -309,7 +309,7 @@ export default function DailyTargetPage({ selectedDate, currentUser, onNavigate 
                       Standard Shift Distribution (All 8 Hours)
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-                      Sets hourly target to <strong>~{standardHourlyRate} units/hr</strong> across all 8 periods (`Daily Target ÷ 8`).
+                      Sets hourly target to <strong>~{standardHourlyRate} pcs/hr</strong> across all 8 periods (`Daily Target ÷ 8`).
                     </div>
                   </div>
                 </label>
@@ -341,7 +341,7 @@ export default function DailyTargetPage({ selectedDate, currentUser, onNavigate 
                       Adaptive Goal Catch-Up (Remaining Hours)
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-                      Keeps past logged hours unchanged. Automatically calculates required pace for the remaining {unloggedCount} hours (<strong>~{adaptiveHourlyRate} units/hr</strong>) to achieve the {parsedTarget} target!
+                      Keeps past logged hours unchanged. Automatically calculates required pace for the remaining {unloggedCount} hours (<strong>~{adaptiveHourlyRate} pcs/hr</strong>) to achieve the {parsedTarget} target!
                     </div>
                   </div>
                 </label>

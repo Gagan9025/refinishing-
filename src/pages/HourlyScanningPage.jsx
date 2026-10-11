@@ -192,7 +192,7 @@ export default function HourlyScanningPage({ selectedDate, currentUser }) {
       );
       setNotification({
         type: 'success',
-        text: `Remaining ${unloggedCount} hours auto-calibrated to ${requiredPace} units/hour to hit the ${totalTarget.toLocaleString()} daily target!`
+        text: `Remaining ${unloggedCount} hours auto-calibrated to ${requiredPace} pcs/hour to hit the ${totalTarget.toLocaleString()} daily target!`
       });
       await loadHourlyData();
     } catch (err) {
@@ -222,10 +222,10 @@ export default function HourlyScanningPage({ selectedDate, currentUser }) {
               type="button"
               className="btn btn-primary btn-sm"
               onClick={handleRecalibrateRemaining}
-              title={`Distribute remaining ${remainingToProduce} units equally across remaining ${unloggedCount} hours`}
+              title={`Distribute remaining ${remainingToProduce} pcs equally across remaining ${unloggedCount} hours`}
             >
               <Zap size={14} />
-              Auto-Calibrate Remaining ({requiredPace}/hr)
+              Auto-Calibrate Remaining ({requiredPace} pcs/hr)
             </button>
           )}
           <button
@@ -271,10 +271,10 @@ export default function HourlyScanningPage({ selectedDate, currentUser }) {
             </div>
             <div>
               <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#14532d' }}>
-                Required Run-Rate: <strong>{requiredPace} units / hour</strong> to achieve daily target of {totalTarget.toLocaleString()}
+                Required Run-Rate: <strong>{requiredPace} pcs / hour</strong> to achieve daily target of {totalTarget.toLocaleString()}
               </div>
               <div style={{ fontSize: '0.78rem', color: '#166534', marginTop: '2px' }}>
-                Remaining to produce: <strong>{remainingToProduce.toLocaleString()} units</strong> across <strong>{unloggedCount} uncompleted periods</strong>
+                Remaining to produce: <strong>{remainingToProduce.toLocaleString()} pcs</strong> across <strong>{unloggedCount} uncompleted periods</strong>
               </div>
             </div>
           </div>
@@ -365,9 +365,9 @@ export default function HourlyScanningPage({ selectedDate, currentUser }) {
             <thead>
               <tr>
                 <th style={{ width: '130px' }}>Hour Slot</th>
-                <th className="num-cell" style={{ width: '100px' }}>Target</th>
-                <th className="num-cell" style={{ width: '100px' }}>Achieved</th>
-                <th className="num-cell" style={{ width: '100px' }}>Difference</th>
+                <th className="num-cell" style={{ width: '100px' }}>Target (Pcs)</th>
+                <th className="num-cell" style={{ width: '100px' }}>Achieved (Pcs)</th>
+                <th className="num-cell" style={{ width: '100px' }}>Diff (Pcs)</th>
                 <th className="num-cell" style={{ width: '120px' }}>Achievement %</th>
                 <th style={{ width: '140px' }}>Status</th>
                 <th>Remarks / Notes</th>
@@ -528,7 +528,7 @@ export default function HourlyScanningPage({ selectedDate, currentUser }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="slot-target">Hourly Target (Units) *</label>
+              <label className="form-label" htmlFor="slot-target">Hourly Target (Pcs) *</label>
               <input
                 id="slot-target"
                 type="number"
@@ -542,7 +542,7 @@ export default function HourlyScanningPage({ selectedDate, currentUser }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="slot-achieved">Actual Achieved (Units) *</label>
+              <label className="form-label" htmlFor="slot-achieved">Actual Achieved (Pcs) *</label>
               <input
                 id="slot-achieved"
                 type="number"

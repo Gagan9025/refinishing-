@@ -103,7 +103,7 @@ export const productionService = {
     const dailyTarget = await this.getDailyTarget(date);
     const defaultHourlyTarget = dailyTarget?.scanningTarget
       ? Math.round(Number(dailyTarget.scanningTarget) / 8)
-      : 125;
+      : 0;
 
     // Ensure all 8 shift hour slots are represented for complete display
     const mappedSlots = SHIFT_HOURS.map((hour, idx) => {

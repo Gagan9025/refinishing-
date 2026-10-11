@@ -1,7 +1,6 @@
 /**
- * Local Storage Adapter for Stage 1 Mock Data Persistence
- * 
- * In Stage 2, this layer is replaced by direct Firebase Firestore calls.
+ * Local Storage Adapter for Clean Slate Data Persistence
+ * All production metrics are tracked in Pieces (Pcs).
  */
 
 import {
@@ -23,8 +22,28 @@ const STORAGE_KEYS = {
   VEHICLE_UNLOADING: 'refinishing_vehicle_unloading',
   VEHICLE_LOADING: 'refinishing_vehicle_loading',
   ATTENDANCE: 'refinishing_attendance',
-  SEEN_RECORDS: 'refinishing_seen_records'
+  SEEN_RECORDS: 'refinishing_seen_records',
+  CLEAN_SLATE_FLAG: 'refinishing_clean_slate_v3'
 };
+
+// Automatic one-time wipe of old dummy seed data so the user has an empty slate
+function ensureCleanSlate() {
+  try {
+    if (!localStorage.getItem(STORAGE_KEYS.CLEAN_SLATE_FLAG)) {
+      localStorage.removeItem(STORAGE_KEYS.DAILY_TARGETS);
+      localStorage.removeItem(STORAGE_KEYS.HOURLY_PRODUCTION);
+      localStorage.removeItem(STORAGE_KEYS.BATCH_PRODUCTION);
+      localStorage.removeItem(STORAGE_KEYS.VEHICLE_UNLOADING);
+      localStorage.removeItem(STORAGE_KEYS.VEHICLE_LOADING);
+      localStorage.removeItem(STORAGE_KEYS.ATTENDANCE);
+      localStorage.removeItem(STORAGE_KEYS.SEEN_RECORDS);
+      localStorage.setItem(STORAGE_KEYS.CLEAN_SLATE_FLAG, 'true');
+    }
+  } catch (e) {
+    // ignore in non-browser env
+  }
+}
+ensureCleanSlate();
 
 function getStorageItem(key, fallback) {
   try {
@@ -116,8 +135,8 @@ export const Storage = {
     setStorageItem(STORAGE_KEYS.SEEN_RECORDS, data);
   },
 
-  // Hard Reset to Mock Data
-  resetToMockData() {
+  // Complete Clear All Data
+  clearAllProductionData() {
     localStorage.removeItem(STORAGE_KEYS.DAILY_TARGETS);
     localStorage.removeItem(STORAGE_KEYS.HOURLY_PRODUCTION);
     localStorage.removeItem(STORAGE_KEYS.BATCH_PRODUCTION);
@@ -125,13 +144,5 @@ export const Storage = {
     localStorage.removeItem(STORAGE_KEYS.VEHICLE_LOADING);
     localStorage.removeItem(STORAGE_KEYS.ATTENDANCE);
     localStorage.removeItem(STORAGE_KEYS.SEEN_RECORDS);
-    // Re-initialize
-    setStorageItem(STORAGE_KEYS.DAILY_TARGETS, INITIAL_DAILY_TARGETS);
-    setStorageItem(STORAGE_KEYS.HOURLY_PRODUCTION, INITIAL_HOURLY_PRODUCTION);
-    setStorageItem(STORAGE_KEYS.BATCH_PRODUCTION, INITIAL_BATCH_PRODUCTION);
-    setStorageItem(STORAGE_KEYS.VEHICLE_UNLOADING, INITIAL_VEHICLE_UNLOADING);
-    setStorageItem(STORAGE_KEYS.VEHICLE_LOADING, INITIAL_VEHICLE_LOADING);
-    setStorageItem(STORAGE_KEYS.ATTENDANCE, INITIAL_ATTENDANCE);
-    setStorageItem(STORAGE_KEYS.SEEN_RECORDS, INITIAL_SEEN_RECORDS);
   }
 };

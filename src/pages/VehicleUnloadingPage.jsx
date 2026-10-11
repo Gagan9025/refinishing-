@@ -231,7 +231,7 @@ export default function VehicleUnloadingPage({ selectedDate, currentUser }) {
                 <th style={{ width: '140px' }}>Vehicle No.</th>
                 <th style={{ width: '150px' }}>Driver Name</th>
                 <th className="num-cell" style={{ width: '100px' }}>Total Boxes</th>
-                <th className="num-cell" style={{ width: '110px' }}>Total Qty</th>
+                <th className="num-cell" style={{ width: '120px' }}>Total Qty (Pcs)</th>
                 <th style={{ width: '180px' }}>Source / From</th>
                 <th>Remarks</th>
                 {isDataEntry && <th style={{ textAlign: 'center', width: '100px' }}>Actions</th>}
@@ -382,7 +382,7 @@ export default function VehicleUnloadingPage({ selectedDate, currentUser }) {
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="unloading-qty">Total Quantity *</label>
+                <label className="form-label" htmlFor="unloading-qty">Total Quantity (Pcs) *</label>
                 <input
                   id="unloading-qty"
                   type="number"

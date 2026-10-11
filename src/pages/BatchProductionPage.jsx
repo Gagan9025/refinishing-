@@ -348,7 +348,7 @@ export default function BatchProductionPage({ selectedDate, currentUser }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="batch-qty">Batch Quantity (Units) *</label>
+              <label className="form-label" htmlFor="batch-qty">Batch Quantity (Pcs) *</label>
               <input
                 id="batch-qty"
                 type="number"

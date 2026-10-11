@@ -201,19 +201,19 @@ export default function DailySummaryPage({ selectedDate, currentUser }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', background: '#f8fafc', padding: '16px', borderRadius: '6px', border: '1px solid var(--color-border-subtle)' }}>
               <div>
-                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Target</span>
+                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Target (Pcs)</span>
                 <div style={{ fontSize: '1.4rem', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>
                   {scanningTarget.toLocaleString()}
                 </div>
               </div>
               <div>
-                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Achieved</span>
+                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Achieved (Pcs)</span>
                 <div style={{ fontSize: '1.4rem', fontWeight: '700', fontFamily: 'var(--font-mono)', color: 'var(--color-primary)' }}>
                   {scanningAchieved.toLocaleString()}
                 </div>
               </div>
               <div>
-                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Remaining</span>
+                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Remaining (Pcs)</span>
                 <div style={{ fontSize: '1.4rem', fontWeight: '700', fontFamily: 'var(--font-mono)', color: scanningRemaining > 0 ? '#b91c1c' : '#15803d' }}>
                   {scanningRemaining.toLocaleString()}
                 </div>
@@ -238,19 +238,19 @@ export default function DailySummaryPage({ selectedDate, currentUser }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', background: '#f8fafc', padding: '16px', borderRadius: '6px', border: '1px solid var(--color-border-subtle)' }}>
               <div>
-                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Batch Target</span>
+                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Batch Target (Pcs)</span>
                 <div style={{ fontSize: '1.4rem', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>
                   {batchTarget !== null ? batchTarget.toLocaleString() : '—'}
                 </div>
               </div>
               <div>
-                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Batch Achieved</span>
+                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Batch Achieved (Pcs)</span>
                 <div style={{ fontSize: '1.4rem', fontWeight: '700', fontFamily: 'var(--font-mono)', color: 'var(--color-primary)' }}>
                   {batchAchieved.toLocaleString()}
                 </div>
               </div>
               <div>
-                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Remaining</span>
+                <span className="stat-title" style={{ fontSize: '0.72rem' }}>Remaining (Pcs)</span>
                 <div style={{ fontSize: '1.4rem', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>
                   {batchRemaining !== null ? batchRemaining.toLocaleString() : '—'}
                 </div>
@@ -319,7 +319,7 @@ export default function DailySummaryPage({ selectedDate, currentUser }) {
                   </div>
                 </div>
                 <div>
-                  <span className="stat-title" style={{ fontSize: '0.7rem' }}>Quantity</span>
+                  <span className="stat-title" style={{ fontSize: '0.7rem' }}>Quantity (Pcs)</span>
                   <div style={{ fontSize: '1.25rem', fontWeight: '700', fontFamily: 'var(--font-mono)', color: '#15803d' }}>
                     {loadingQuantity.toLocaleString()}
                   </div>
@@ -349,7 +349,7 @@ export default function DailySummaryPage({ selectedDate, currentUser }) {
                   </div>
                 </div>
                 <div>
-                  <span className="stat-title" style={{ fontSize: '0.7rem' }}>Quantity</span>
+                  <span className="stat-title" style={{ fontSize: '0.7rem' }}>Quantity (Pcs)</span>
                   <div style={{ fontSize: '1.25rem', fontWeight: '700', fontFamily: 'var(--font-mono)', color: '#0284c7' }}>
                     {unloadingQuantity.toLocaleString()}
                   </div>
