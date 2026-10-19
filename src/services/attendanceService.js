@@ -1,10 +1,9 @@
 /**
  * Daily Attendance Service
- * Connected to Cloud Firestore + Local Cache
+ * Connected to Supabase + Local Cache
  */
 
-import { doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
 import { INITIAL_EMPLOYEES } from '../data/mockData';
 
@@ -12,13 +11,16 @@ export const attendanceService = {
   async getAttendance(date) {
     let dateRecords = [];
     try {
-      const q = query(collection(db, 'attendance'), where('date', '==', date));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        dateRecords = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const { data, error } = await supabase
+        .from('attendance')
+        .select('*')
+        .eq('date', date);
+
+      if (!error && data && data.length > 0) {
+        dateRecords = data;
       }
     } catch (err) {
-      console.warn('Firestore read error for attendance, using local cache:', err.message);
+      console.warn('Supabase read error for attendance, using local cache:', err.message);
     }
 
     if (dateRecords.length === 0) {
@@ -82,9 +84,9 @@ export const attendanceService = {
     Storage.setAttendance(allAttendance);
 
     try {
-      await setDoc(doc(db, 'attendance', id), updatedRecord, { merge: true });
+      await supabase.from('attendance').upsert(updatedRecord, { onConflict: 'id' });
     } catch (err) {
-      console.warn('Firestore attendance save warning:', err.message);
+      console.warn('Supabase attendance save warning:', err.message);
     }
 
     return updatedRecord;
@@ -112,9 +114,9 @@ export const attendanceService = {
     Storage.setAttendance(allAttendance);
 
     try {
-      await setDoc(doc(db, 'attendance', id), newRec, { merge: true });
+      await supabase.from('attendance').upsert(newRec, { onConflict: 'id' });
     } catch (err) {
-      console.warn('Firestore add employee warning:', err.message);
+      console.warn('Supabase add employee warning:', err.message);
     }
 
     return newRec;
@@ -127,22 +129,21 @@ export const attendanceService = {
 
     const updated = allAttendance.map((rec) => {
       if (rec.date === date) {
-        const item = {
-          ...rec,
-          status,
-          updatedAt: nowISO,
-          updatedBy: username
-        };
-        // Background firestore sync
-        try {
-          setDoc(doc(db, 'attendance', item.id), item, { merge: true });
-        } catch (e) {}
-        return item;
+        return { ...rec, status, updatedAt: nowISO, updatedBy: username };
       }
       return rec;
     });
 
     Storage.setAttendance(updated);
-    return updated.filter((r) => r.date === date);
+
+    // Batch upsert to Supabase
+    const toSync = updated.filter((r) => r.date === date);
+    try {
+      await supabase.from('attendance').upsert(toSync, { onConflict: 'id' });
+    } catch (err) {
+      console.warn('Supabase bulk attendance warning:', err.message);
+    }
+
+    return toSync;
   }
 };

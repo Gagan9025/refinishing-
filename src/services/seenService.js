@@ -1,5 +1,4 @@
-import { doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
 
 export const seenService = {
@@ -11,13 +10,16 @@ export const seenService = {
   async getSeenRecords(date) {
     let dateRecords = [];
     try {
-      const q = query(collection(db, 'seenRecords'), where('date', '==', date));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        dateRecords = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const { data, error } = await supabase
+        .from('seen_records')
+        .select('*')
+        .eq('date', date);
+
+      if (!error && data && data.length > 0) {
+        dateRecords = data;
       }
     } catch (err) {
-      console.warn('Firestore read error for seenRecords, using local cache:', err.message);
+      console.warn('Supabase read error for seenRecords, using local cache:', err.message);
     }
 
     if (dateRecords.length === 0) {
@@ -77,9 +79,9 @@ export const seenService = {
     Storage.setSeenRecords(allSeen);
 
     try {
-      await setDoc(doc(db, 'seenRecords', recordId), newRecord, { merge: true });
+      await supabase.from('seen_records').insert(newRecord);
     } catch (err) {
-      console.warn('Firestore seenRecord save warning:', err.message);
+      console.warn('Supabase seenRecord save warning:', err.message);
     }
 
     return newRecord;

@@ -1,10 +1,9 @@
 /**
  * Production Service (Daily Target & Hourly Scanning)
- * Connected to Cloud Firestore + Local Cache Fallback
+ * Connected to Supabase + Local Cache Fallback
  */
 
-import { doc, getDoc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
 import { SHIFT_HOURS } from '../utils/dateUtils';
 import {
@@ -15,20 +14,21 @@ import {
 
 export const productionService = {
   /**
-   * Get Daily Target for a specific date from Firestore
+   * Get Daily Target for a specific date from Supabase
    * @param {string} date - 'YYYY-MM-DD'
    * @returns {Promise<object|null>}
    */
   async getDailyTarget(date) {
     try {
-      const docRef = doc(db, 'dailyTargets', `target_${date}`);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        return { id: snap.id, ...data };
-      }
+      const { data, error } = await supabase
+        .from('daily_targets')
+        .select('*')
+        .eq('id', `target_${date}`)
+        .single();
+
+      if (!error && data) return data;
     } catch (err) {
-      console.warn('Firestore read error for dailyTargets, using local cache:', err.message);
+      console.warn('Supabase read error for dailyTargets, using local cache:', err.message);
     }
     // Fallback to local storage
     const targets = Storage.getDailyTargets();
@@ -37,7 +37,7 @@ export const productionService = {
   },
 
   /**
-   * Save / Update Daily Target for a date in Firestore
+   * Save / Update Daily Target for a date in Supabase
    * @param {object} data - { date, scanningTarget, batchTarget, user }
    * @returns {Promise<object>}
    */
@@ -66,12 +66,11 @@ export const productionService = {
     }
     Storage.setDailyTargets(targets);
 
-    // Save to live Cloud Firestore
+    // Save to Supabase
     try {
-      const docRef = doc(db, 'dailyTargets', `target_${data.date}`);
-      await setDoc(docRef, targetPayload, { merge: true });
+      await supabase.from('daily_targets').upsert(targetPayload, { onConflict: 'id' });
     } catch (err) {
-      console.warn('Firestore write warning (check Security Rules if permission denied):', err.message);
+      console.warn('Supabase write warning (check RLS policies if permission denied):', err.message);
     }
 
     return targetPayload;
@@ -86,13 +85,16 @@ export const productionService = {
     let dateRecords = [];
 
     try {
-      const q = query(collection(db, 'hourlyProduction'), where('date', '==', date));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        dateRecords = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const { data, error } = await supabase
+        .from('hourly_production')
+        .select('*')
+        .eq('date', date);
+
+      if (!error && data && data.length > 0) {
+        dateRecords = data;
       }
     } catch (err) {
-      console.warn('Firestore read error for hourlyProduction, using local cache:', err.message);
+      console.warn('Supabase read error for hourlyProduction, using local cache:', err.message);
     }
 
     if (dateRecords.length === 0) {
@@ -133,7 +135,7 @@ export const productionService = {
   },
 
   /**
-   * Save / Update an Hourly Production slot in Firestore
+   * Save / Update an Hourly Production slot in Supabase
    * @param {object} payload - { date, hour, target, achieved, remarks, user }
    * @returns {Promise<object>}
    */
@@ -152,7 +154,10 @@ export const productionService = {
     const nowISO = new Date().toISOString();
     const username = payload.user?.username || 'system';
     const slotIdx = SHIFT_HOURS.indexOf(payload.hour) + 1;
-    const recordId = existingIndex >= 0 ? allRecords[existingIndex].id : `hp_${payload.date}_slot_${slotIdx || Date.now()}`;
+    const recordId =
+      existingIndex >= 0
+        ? allRecords[existingIndex].id
+        : `hp_${payload.date}_slot_${slotIdx || Date.now()}`;
 
     const updatedRecord = {
       id: recordId,
@@ -179,12 +184,11 @@ export const productionService = {
     }
     Storage.setHourlyProduction(allRecords);
 
-    // Save to live Cloud Firestore
+    // Save to Supabase
     try {
-      const docRef = doc(db, 'hourlyProduction', recordId);
-      await setDoc(docRef, updatedRecord, { merge: true });
+      await supabase.from('hourly_production').upsert(updatedRecord, { onConflict: 'id' });
     } catch (err) {
-      console.warn('Firestore write warning:', err.message);
+      console.warn('Supabase write warning:', err.message);
     }
 
     return updatedRecord;
@@ -231,7 +235,7 @@ export const productionService = {
         if (r.date !== date) return r;
         const slotIdx = SHIFT_HOURS.indexOf(r.hour);
         const allocatedTarget = baseHourly + (slotIdx < remainder ? 1 : 0);
-        
+
         const diff = r.isUpdated ? calculateDifference(allocatedTarget, r.achieved) : 0;
         const pct = r.isUpdated ? calculateAchievementPercentage(allocatedTarget, r.achieved) : 0;
         const stat = calculateProductionStatus(allocatedTarget, r.achieved, r.isUpdated);
@@ -281,15 +285,12 @@ export const productionService = {
 
     Storage.setHourlyProduction(allRecords);
 
-    // Batch update to live Cloud Firestore
+    // Batch upsert to Supabase
     const dateSlots = allRecords.filter((r) => r.date === date);
-    for (const slot of dateSlots) {
-      try {
-        const docRef = doc(db, 'hourlyProduction', slot.id);
-        await setDoc(docRef, slot, { merge: true });
-      } catch (err) {
-        // Continue silently if offline
-      }
+    try {
+      await supabase.from('hourly_production').upsert(dateSlots, { onConflict: 'id' });
+    } catch (err) {
+      // Continue silently if offline
     }
 
     return dateSlots;

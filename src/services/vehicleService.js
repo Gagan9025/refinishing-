@@ -1,10 +1,9 @@
 /**
  * Vehicle Service (Vehicle Loading & Vehicle Unloading)
- * Connected to Cloud Firestore + Local Cache
+ * Connected to Supabase + Local Cache
  */
 
-import { doc, setDoc, deleteDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
 
 export const vehicleService = {
@@ -15,13 +14,16 @@ export const vehicleService = {
   async getVehicleUnloading(date) {
     let dateRecords = [];
     try {
-      const q = query(collection(db, 'vehicleUnloading'), where('date', '==', date));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        dateRecords = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const { data, error } = await supabase
+        .from('vehicle_unloading')
+        .select('*')
+        .eq('date', date);
+
+      if (!error && data && data.length > 0) {
+        dateRecords = data;
       }
     } catch (err) {
-      console.warn('Firestore read error for vehicleUnloading, using local cache:', err.message);
+      console.warn('Supabase read error for vehicleUnloading, using local cache:', err.message);
     }
 
     if (dateRecords.length === 0) {
@@ -64,9 +66,9 @@ export const vehicleService = {
     Storage.setVehicleUnloading(all);
 
     try {
-      await setDoc(doc(db, 'vehicleUnloading', id), record, { merge: true });
+      await supabase.from('vehicle_unloading').upsert(record, { onConflict: 'id' });
     } catch (err) {
-      console.warn('Firestore vehicleUnloading save warning:', err.message);
+      console.warn('Supabase vehicleUnloading save warning:', err.message);
     }
 
     return record;
@@ -74,13 +76,12 @@ export const vehicleService = {
 
   async deleteVehicleUnloading(id) {
     const all = Storage.getVehicleUnloading();
-    const filtered = all.filter((v) => v.id !== id);
-    Storage.setVehicleUnloading(filtered);
+    Storage.setVehicleUnloading(all.filter((v) => v.id !== id));
 
     try {
-      await deleteDoc(doc(db, 'vehicleUnloading', id));
+      await supabase.from('vehicle_unloading').delete().eq('id', id);
     } catch (err) {
-      console.warn('Firestore vehicleUnloading delete warning:', err.message);
+      console.warn('Supabase vehicleUnloading delete warning:', err.message);
     }
 
     return { success: true };
@@ -93,13 +94,16 @@ export const vehicleService = {
   async getVehicleLoading(date) {
     let dateRecords = [];
     try {
-      const q = query(collection(db, 'vehicleLoading'), where('date', '==', date));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        dateRecords = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const { data, error } = await supabase
+        .from('vehicle_loading')
+        .select('*')
+        .eq('date', date);
+
+      if (!error && data && data.length > 0) {
+        dateRecords = data;
       }
     } catch (err) {
-      console.warn('Firestore read error for vehicleLoading, using local cache:', err.message);
+      console.warn('Supabase read error for vehicleLoading, using local cache:', err.message);
     }
 
     if (dateRecords.length === 0) {
@@ -142,9 +146,9 @@ export const vehicleService = {
     Storage.setVehicleLoading(all);
 
     try {
-      await setDoc(doc(db, 'vehicleLoading', id), record, { merge: true });
+      await supabase.from('vehicle_loading').upsert(record, { onConflict: 'id' });
     } catch (err) {
-      console.warn('Firestore vehicleLoading save warning:', err.message);
+      console.warn('Supabase vehicleLoading save warning:', err.message);
     }
 
     return record;
@@ -152,13 +156,12 @@ export const vehicleService = {
 
   async deleteVehicleLoading(id) {
     const all = Storage.getVehicleLoading();
-    const filtered = all.filter((v) => v.id !== id);
-    Storage.setVehicleLoading(filtered);
+    Storage.setVehicleLoading(all.filter((v) => v.id !== id));
 
     try {
-      await deleteDoc(doc(db, 'vehicleLoading', id));
+      await supabase.from('vehicle_loading').delete().eq('id', id);
     } catch (err) {
-      console.warn('Firestore vehicleLoading delete warning:', err.message);
+      console.warn('Supabase vehicleLoading delete warning:', err.message);
     }
 
     return { success: true };

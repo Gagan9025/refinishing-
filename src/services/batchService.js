@@ -1,10 +1,9 @@
 /**
  * Batch Production Service
- * Connected to Cloud Firestore + Local Cache
+ * Connected to Supabase + Local Cache
  */
 
-import { doc, getDoc, setDoc, deleteDoc, getDocs, collection, query, where } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
 
 export const batchService = {
@@ -16,13 +15,16 @@ export const batchService = {
   async getBatchProduction(date) {
     let dateRecords = [];
     try {
-      const q = query(collection(db, 'batchProduction'), where('date', '==', date));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        dateRecords = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const { data, error } = await supabase
+        .from('batch_production')
+        .select('*')
+        .eq('date', date);
+
+      if (!error && data && data.length > 0) {
+        dateRecords = data;
       }
     } catch (err) {
-      console.warn('Firestore read error for batchProduction, using local cache:', err.message);
+      console.warn('Supabase read error for batchProduction, using local cache:', err.message);
     }
 
     if (dateRecords.length === 0) {
@@ -34,7 +36,7 @@ export const batchService = {
   },
 
   /**
-   * Save a new batch entry or update existing in Firestore
+   * Save a new batch entry or update existing in Supabase
    */
   async saveBatchProduction(payload) {
     const allBatches = Storage.getBatchProduction();
@@ -62,29 +64,27 @@ export const batchService = {
     }
     Storage.setBatchProduction(allBatches);
 
-    // Save to Cloud Firestore
+    // Save to Supabase
     try {
-      const docRef = doc(db, 'batchProduction', id);
-      await setDoc(docRef, batchRecord, { merge: true });
+      await supabase.from('batch_production').upsert(batchRecord, { onConflict: 'id' });
     } catch (err) {
-      console.warn('Firestore batch save warning:', err.message);
+      console.warn('Supabase batch save warning:', err.message);
     }
 
     return batchRecord;
   },
 
   /**
-   * Delete a batch entry in Firestore
+   * Delete a batch entry in Supabase
    */
   async deleteBatchProduction(id) {
     const allBatches = Storage.getBatchProduction();
-    const filtered = allBatches.filter((b) => b.id !== id);
-    Storage.setBatchProduction(filtered);
+    Storage.setBatchProduction(allBatches.filter((b) => b.id !== id));
 
     try {
-      await deleteDoc(doc(db, 'batchProduction', id));
+      await supabase.from('batch_production').delete().eq('id', id);
     } catch (err) {
-      console.warn('Firestore batch delete warning:', err.message);
+      console.warn('Supabase batch delete warning:', err.message);
     }
 
     return { success: true };

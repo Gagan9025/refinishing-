@@ -1,14 +1,12 @@
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
+import { supabase } from '../supabase/config';
 import { INITIAL_USERS } from '../data/mockData';
 import { Storage } from '../utils/storage';
 
 export const authService = {
   /**
-   * Log in user using credentials (supports mock demo credentials & Firebase Auth)
-   * @param {string} username 
-   * @param {string} password 
+   * Log in user using credentials (supports mock demo credentials & Supabase Auth)
+   * @param {string} username
+   * @param {string} password
    * @returns {Promise<{success: boolean, user?: object, error?: string}>}
    */
   async login(username, password) {
@@ -30,10 +28,11 @@ export const authService = {
       };
       Storage.setCurrentUser(userSession);
 
-      // Best effort sync session to Firestore
+      // Best effort sync session to Supabase users table
       try {
-        const userDocRef = doc(db, 'users', foundUser.id);
-        await setDoc(userDocRef, { ...userSession, lastActiveAt: new Date().toISOString() }, { merge: true });
+        await supabase
+          .from('users')
+          .upsert({ ...userSession, lastActiveAt: new Date().toISOString() }, { onConflict: 'id' });
       } catch (e) {
         // Continue silently if offline
       }
@@ -41,30 +40,39 @@ export const authService = {
       return { success: true, user: userSession };
     }
 
-    // 2. If entered an email format, attempt Firebase Auth
+    // 2. If entered an email format, attempt Supabase Auth
     if (trimmedUser.includes('@')) {
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, trimmedUser, password);
-        const fbUser = userCredential.user;
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: trimmedUser,
+          password
+        });
 
-        // Try to fetch custom role from Firestore users collection
+        if (error) throw error;
+
+        const sbUser = data.user;
+
+        // Try to fetch custom role from Supabase users table
         let role = 'VIEWER';
         let department = 'Refinishing Dept';
         try {
-          const userDoc = await getDoc(doc(db, 'users', fbUser.uid));
-          if (userDoc.exists()) {
-            const data = userDoc.data();
-            role = data.role || role;
-            department = data.department || department;
+          const { data: userData } = await supabase
+            .from('users')
+            .select('role, department')
+            .eq('id', sbUser.id)
+            .single();
+          if (userData) {
+            role = userData.role || role;
+            department = userData.department || department;
           }
         } catch (e) {}
 
         const userSession = {
-          id: fbUser.uid,
-          username: fbUser.email,
-          name: fbUser.displayName || fbUser.email.split('@')[0],
-          role: role,
-          department: department,
+          id: sbUser.id,
+          username: sbUser.email,
+          name: sbUser.user_metadata?.name || sbUser.email.split('@')[0],
+          role,
+          department,
           loginAt: new Date().toISOString()
         };
         Storage.setCurrentUser(userSession);
@@ -72,7 +80,7 @@ export const authService = {
       } catch (err) {
         return {
           success: false,
-          error: `Firebase Auth error: ${err.message}`
+          error: `Supabase Auth error: ${err.message}`
         };
       }
     }
@@ -88,7 +96,7 @@ export const authService = {
    */
   async logout() {
     try {
-      await signOut(auth);
+      await supabase.auth.signOut();
     } catch (e) {}
     Storage.clearCurrentUser();
     return { success: true };
