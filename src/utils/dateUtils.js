@@ -51,15 +51,10 @@ export function formatDateDisplay(dateStr) {
 }
 
 /**
- * Default to 2026-10-11 if matching prompt's demonstration date, or real system date
+ * Default to today's system date automatically
  */
 export function getInitialSelectedDate() {
-  // Use 2026-10-11 as the benchmark default date to match prompt's example,
-  // or today's date if year is already 2026.
-  const today = new Date();
-  const todayISO = formatDateToISO(today);
-  // If the user's system date is 2026-10-11, use that, else default to 2026-10-11 for exact match with requirements
-  return '2026-10-11';
+  return formatDateToISO(new Date());
 }
 
 /**

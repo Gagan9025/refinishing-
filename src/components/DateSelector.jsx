@@ -12,10 +12,7 @@ export default function DateSelector({ selectedDate, onDateChange }) {
   };
 
   const handleToday = () => {
-    // Allows reverting to today or initial baseline date
-    const today = formatDateToISO(new Date());
-    // If today is older/newer than 2026-10-11, user can pick default 2026-10-11 or current system today
-    onDateChange(getInitialSelectedDate());
+    onDateChange(formatDateToISO(new Date()));
   };
 
   const handlePickerChange = (e) => {

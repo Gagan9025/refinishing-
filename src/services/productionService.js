@@ -11,6 +11,7 @@ import {
   calculateAchievementPercentage,
   calculateProductionStatus
 } from '../utils/calculationUtils';
+import { realtimeService } from './realtimeService';
 
 export const productionService = {
   /**
@@ -72,6 +73,15 @@ export const productionService = {
     } catch (err) {
       console.warn('Supabase write warning (check RLS policies if permission denied):', err.message);
     }
+
+    // Broadcast live update to all active users on the web
+    realtimeService.notifyDataChange({
+      table: 'daily_targets',
+      action: 'UPDATE',
+      date: data.date,
+      userName: data.user?.name || username,
+      summary: `Daily Target updated to ${targetPayload.scanningTarget} Pcs`
+    });
 
     return targetPayload;
   },
@@ -191,6 +201,15 @@ export const productionService = {
       console.warn('Supabase write warning:', err.message);
     }
 
+    // Broadcast live update to all active users on the web
+    realtimeService.notifyDataChange({
+      table: 'hourly_production',
+      action: 'UPDATE',
+      date: payload.date,
+      userName: payload.user?.name || username,
+      summary: `Slot ${payload.hour}: ${achieved} Pcs achieved (Target: ${target} Pcs)`
+    });
+
     return updatedRecord;
   },
 
@@ -292,6 +311,15 @@ export const productionService = {
     } catch (err) {
       // Continue silently if offline
     }
+
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'hourly_production',
+      action: 'UPDATE',
+      date,
+      userName: user?.name || username,
+      summary: `Shift target distributed across hourly slots for ${date}`
+    });
 
     return dateSlots;
   },
