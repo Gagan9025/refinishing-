@@ -5,6 +5,7 @@
 
 import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
+import { realtimeService } from './realtimeService';
 
 export const batchService = {
   /**
@@ -71,6 +72,15 @@ export const batchService = {
       console.warn('Supabase batch save warning:', err.message);
     }
 
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'batch_production',
+      action: 'UPDATE',
+      date: payload.date,
+      userName: payload.user?.name || username,
+      summary: `Batch added for slot ${payload.hour}: ${batchRecord.batchQuantity} Pcs`
+    });
+
     return batchRecord;
   },
 
@@ -86,6 +96,13 @@ export const batchService = {
     } catch (err) {
       console.warn('Supabase batch delete warning:', err.message);
     }
+
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'batch_production',
+      action: 'DELETE',
+      summary: `Batch entry deleted`
+    });
 
     return { success: true };
   }
