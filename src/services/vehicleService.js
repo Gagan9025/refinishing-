@@ -5,6 +5,7 @@
 
 import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
+import { realtimeService } from './realtimeService';
 
 export const vehicleService = {
   // ==========================================
@@ -71,6 +72,15 @@ export const vehicleService = {
       console.warn('Supabase vehicleUnloading save warning:', err.message);
     }
 
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'vehicle_unloading',
+      action: 'UPDATE',
+      date: payload.date,
+      userName: payload.user?.name || username,
+      summary: `Vehicle Unloaded: ${record.vehicleNumber} (${record.quantity} Pcs)`
+    });
+
     return record;
   },
 
@@ -83,6 +93,13 @@ export const vehicleService = {
     } catch (err) {
       console.warn('Supabase vehicleUnloading delete warning:', err.message);
     }
+
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'vehicle_unloading',
+      action: 'DELETE',
+      summary: `Vehicle unloading record removed`
+    });
 
     return { success: true };
   },
@@ -151,6 +168,15 @@ export const vehicleService = {
       console.warn('Supabase vehicleLoading save warning:', err.message);
     }
 
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'vehicle_loading',
+      action: 'UPDATE',
+      date: payload.date,
+      userName: payload.user?.name || username,
+      summary: `Vehicle Loaded: ${record.vehicleNumber} (${record.quantity} Pcs dispatched)`
+    });
+
     return record;
   },
 
@@ -163,6 +189,13 @@ export const vehicleService = {
     } catch (err) {
       console.warn('Supabase vehicleLoading delete warning:', err.message);
     }
+
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'vehicle_loading',
+      action: 'DELETE',
+      summary: `Vehicle loading record removed`
+    });
 
     return { success: true };
   }

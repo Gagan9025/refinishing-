@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
+import { realtimeService } from './realtimeService';
 
 export const seenService = {
   /**
@@ -83,6 +84,15 @@ export const seenService = {
     } catch (err) {
       console.warn('Supabase seenRecord save warning:', err.message);
     }
+
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'seen_records',
+      action: 'INSERT',
+      date: payload.date,
+      userName: payload.viewerName,
+      summary: `Viewed & Verified: ${payload.viewerName} checked ${payload.module || 'Data'} (${payload.hour || ''})`
+    });
 
     return newRecord;
   }

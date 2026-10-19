@@ -1,6 +1,7 @@
-import React from 'react';
-import { Menu, Clock, User, RotateCcw, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Menu, Clock, User, RotateCcw, ShieldCheck, Users, Radio } from 'lucide-react';
 import DateSelector from './DateSelector';
+import ActiveUsersModal from './ActiveUsersModal';
 import { getCurrentHourSlot } from '../utils/dateUtils';
 import { Storage } from '../utils/storage';
 
@@ -9,10 +10,19 @@ export default function Navbar({
   onDateChange,
   currentUser,
   onToggleSidebar,
-  onRefreshData
+  onRefreshData,
+  onlineUsers = [],
+  onRefreshPresence
 }) {
+  const [showActiveUsers, setShowActiveUsers] = useState(false);
   const currentSlot = getCurrentHourSlot();
   const isDataEntry = currentUser?.role === 'DATA ENTRY';
+
+  // Deduplicate unique user count
+  const uniqueCount = Math.max(
+    1,
+    new Set((onlineUsers || []).map((u) => u.userId || u.tabId)).size
+  );
 
   const handleResetData = () => {
     if (window.confirm('Reset all demo data back to default records? Your temporary entries will be replaced with clean demo records.')) {
@@ -48,8 +58,31 @@ export default function Navbar({
         <DateSelector selectedDate={selectedDate} onDateChange={onDateChange} />
       </div>
 
-
       <div className="navbar-right">
+        {/* Live Sync Status Pill */}
+        <div
+          className="live-sync-pill"
+          title="Real-time live synchronization active across all devices & users"
+        >
+          <span className="live-pulse-dot" />
+          <span className="desktop-only" style={{ fontSize: '0.75rem', fontWeight: '600', color: '#059669' }}>
+            Live Sync
+          </span>
+        </div>
+
+        {/* Who is on the Web (Active Online Users Button) */}
+        <button
+          type="button"
+          className="active-users-pill-btn"
+          onClick={() => setShowActiveUsers(true)}
+          title="See who is currently active on the web"
+        >
+          <Users size={14} style={{ color: '#2563eb' }} />
+          <span style={{ fontSize: '0.78rem', fontWeight: '600' }}>
+            {uniqueCount} <span className="desktop-only">Online</span>
+          </span>
+        </button>
+
         {/* Current Active Working Slot */}
         <div className="shift-indicator" title="Current scheduled working period">
           <Clock size={13} style={{ color: 'var(--color-accent)' }} />
@@ -83,6 +116,16 @@ export default function Navbar({
           </div>
         </div>
       </div>
+
+      {/* Active Users Dialog Modal */}
+      <ActiveUsersModal
+        isOpen={showActiveUsers}
+        onClose={() => setShowActiveUsers(false)}
+        onlineUsers={onlineUsers}
+        currentUser={currentUser}
+        selectedDate={selectedDate}
+        onRefreshPresence={onRefreshPresence}
+      />
     </header>
   );
 }

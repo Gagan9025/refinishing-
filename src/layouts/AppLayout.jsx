@@ -12,7 +12,9 @@ export default function AppLayout({
   onDateChange,
   currentUser,
   onLogout,
-  onRefreshData
+  onRefreshData,
+  onlineUsers = [],
+  onRefreshPresence
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isViewer = currentUser?.role === 'VIEWER';
@@ -37,6 +39,8 @@ export default function AppLayout({
           currentUser={currentUser}
           onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           onRefreshData={onRefreshData}
+          onlineUsers={onlineUsers}
+          onRefreshPresence={onRefreshPresence}
         />
 
         <main className="content-body">

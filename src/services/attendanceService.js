@@ -6,6 +6,7 @@
 import { supabase } from '../supabase/config';
 import { Storage } from '../utils/storage';
 import { INITIAL_EMPLOYEES } from '../data/mockData';
+import { realtimeService } from './realtimeService';
 
 export const attendanceService = {
   async getAttendance(date) {
@@ -89,6 +90,15 @@ export const attendanceService = {
       console.warn('Supabase attendance save warning:', err.message);
     }
 
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'attendance',
+      action: 'UPDATE',
+      date: payload.date,
+      userName: payload.user?.name || username,
+      summary: `Attendance: ${updatedRecord.employeeName} marked ${updatedRecord.status}`
+    });
+
     return updatedRecord;
   },
 
@@ -143,6 +153,15 @@ export const attendanceService = {
     } catch (err) {
       console.warn('Supabase bulk attendance warning:', err.message);
     }
+
+    // Broadcast live update
+    realtimeService.notifyDataChange({
+      table: 'attendance',
+      action: 'UPDATE',
+      date,
+      userName: user?.name || username,
+      summary: `Bulk attendance updated for ${date} (${status})`
+    });
 
     return toSync;
   }
