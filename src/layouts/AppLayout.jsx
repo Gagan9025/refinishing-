@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import MobileBottomNav from '../components/MobileBottomNav';
-import { Eye, ShieldAlert } from 'lucide-react';
+import { Eye, ShieldAlert, ShieldCheck } from 'lucide-react';
 
 export default function AppLayout({
   children,
@@ -18,6 +18,7 @@ export default function AppLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isViewer = currentUser?.role === 'VIEWER';
+  const isAdmin = currentUser?.role === 'ADMIN';
 
   return (
     <div className="app-container">
@@ -54,6 +55,19 @@ export default function AppLayout({
                 </span>
               </div>
               <span className="badge badge-role viewer">READ-ONLY</span>
+            </div>
+          )}
+
+          {/* Admin Session Banner */}
+          {isAdmin && (
+            <div className="admin-session-banner">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShieldCheck size={16} />
+                <span>
+                  <strong>Admin Session:</strong> You have full administrative access. Use the Admin Dashboard in the sidebar to manage users and view audit logs.
+                </span>
+              </div>
+              <span className="badge badge-role admin">ADMIN</span>
             </div>
           )}
 

@@ -10,6 +10,7 @@ import VehicleUnloadingPage from './pages/VehicleUnloadingPage';
 import AttendancePage from './pages/AttendancePage';
 import SeenListPage from './pages/SeenListPage';
 import DailySummaryPage from './pages/DailySummaryPage';
+import AdminPage from './pages/AdminPage';
 import { authService } from './services/authService';
 import { getInitialSelectedDate } from './utils/dateUtils';
 import { realtimeService } from './services/realtimeService';
@@ -209,6 +210,13 @@ export default function App() {
           selectedDate={selectedDate}
           currentUser={currentUser}
           onNavigate={setCurrentPage}
+        />
+      )}
+
+      {currentPage === 'admin' && (
+        <AdminPage
+          currentUser={currentUser}
+          onlineUsers={onlineUsers}
         />
       )}
     </AppLayout>

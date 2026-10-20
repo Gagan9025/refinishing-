@@ -12,7 +12,8 @@ import {
   FileText,
   LogOut,
   Sliders,
-  ShieldAlert
+  ShieldAlert,
+  ShieldCheck
 } from 'lucide-react';
 import { SHIFT_DETAILS } from '../utils/dateUtils';
 
@@ -38,6 +39,7 @@ export default function Sidebar({
   onClose
 }) {
   const isViewerRole = currentUser?.role === 'VIEWER';
+  const isAdminRole = currentUser?.role === 'ADMIN';
 
   return (
     <>
@@ -82,6 +84,33 @@ export default function Sidebar({
               </button>
             );
           })}
+
+          {/* Admin Section — visible only to ADMIN role */}
+          {isAdminRole && (
+            <>
+              <div style={{
+                margin: '10px 0 6px',
+                borderTop: '1px solid #1e293b',
+                paddingTop: '10px'
+              }}>
+                <span style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', padding: '0 4px' }}>
+                  Administration
+                </span>
+              </div>
+              <button
+                type="button"
+                className={`nav-link ${currentPage === 'admin' ? 'active' : ''}`}
+                onClick={() => {
+                  onNavigate('admin');
+                  if (onClose) onClose();
+                }}
+                style={currentPage !== 'admin' ? { color: '#f87171' } : {}}
+              >
+                <ShieldCheck className="nav-icon" />
+                <span>Admin Dashboard</span>
+              </button>
+            </>
+          )}
         </nav>
 
         {/* Working Hours & Shift Reminder */}

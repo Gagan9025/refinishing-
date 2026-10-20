@@ -742,4 +742,100 @@
   background-color: #f1f5f9;
 }
 
+/* ==========================================================================
+   Admin Dashboard Styles
+   ========================================================================== */
 
+/* Admin role badge — red/danger variant */
+.badge-role.admin {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+/* Admin session notice banner */
+.admin-session-banner {
+  background-color: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-left: 4px solid #dc2626;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #991b1b;
+}
+
+/* Admin tab nav pills */
+.admin-tab-bar {
+  display: flex;
+  gap: 2px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.admin-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-subtle);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.admin-tab-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-main);
+}
+
+.admin-tab-btn.active {
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-color: #bfdbfe;
+  font-weight: 600;
+}
+
+/* User row actions */
+.user-action-group {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Audit log action chips */
+.audit-action-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Admin access denied screen */
+.admin-access-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  text-align: center;
+  color: var(--color-text-subtle);
+}
+
+/* @keyframes spin and pulse are defined inline in AdminPage for isolation */

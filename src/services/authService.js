@@ -1,6 +1,7 @@
 import { supabase } from '../supabase/config';
 import { INITIAL_USERS } from '../data/mockData';
 import { Storage } from '../utils/storage';
+import { adminService } from './adminService';
 
 export const authService = {
   /**
@@ -18,6 +19,12 @@ export const authService = {
     );
 
     if (foundUser) {
+      // Check if this account has been deactivated in the DB (non-fatal if DB unreachable)
+      const isActive = await adminService.checkIsActive(foundUser.id);
+      if (isActive === false) {
+        return { success: false, error: 'Your account has been deactivated. Please contact an Administrator.' };
+      }
+
       const userSession = {
         id: foundUser.id,
         username: foundUser.username,
@@ -28,11 +35,22 @@ export const authService = {
       };
       Storage.setCurrentUser(userSession);
 
-      // Best effort sync session to Supabase users table
+      // Best effort sync session to Supabase users table and record login timestamp
       try {
         await supabase
           .from('users')
-          .upsert({ ...userSession, lastActiveAt: new Date().toISOString() }, { onConflict: 'id' });
+          .upsert(
+            {
+              id: foundUser.id,
+              username: foundUser.username,
+              name: foundUser.name,
+              role: foundUser.role,
+              department: foundUser.department,
+              is_active: true,
+              last_login_at: new Date().toISOString()
+            },
+            { onConflict: 'id' }
+          );
       } catch (e) {
         // Continue silently if offline
       }
@@ -87,7 +105,7 @@ export const authService = {
 
     return {
       success: false,
-      error: 'Invalid username or password. Use demo credentials (entry / entry123 or viewer / viewer123).'
+      error: 'Invalid username or password. Demo: admin / admin123 · entry / entry123 · viewer / viewer123'
     };
   },
 
@@ -121,5 +139,12 @@ export const authService = {
    */
   isViewer(user) {
     return user && user.role === 'VIEWER';
+  },
+
+  /**
+   * Role check helper: Is Administrator role?
+   */
+  isAdmin(user) {
+    return user && user.role === 'ADMIN';
   }
 };

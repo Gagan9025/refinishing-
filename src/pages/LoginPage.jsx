@@ -135,11 +135,23 @@ export default function LoginPage({ onLoginSuccess }) {
             <div className="demo-account-title">
               <span>Demo Quick-Fill Roles (Stage 1 Testing)</span>
             </div>
-            <div className="demo-btn-group">
+            <div className="demo-btn-group" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+              <button
+                type="button"
+                className="btn-demo-select"
+                onClick={() => handleSelectDemo('admin', 'admin123')}
+                id="demo-select-admin"
+              >
+                <div style={{ color: '#dc2626' }}>ADMIN</div>
+                <small>admin / admin123</small>
+                <small style={{ color: '#dc2626' }}>User Management</small>
+              </button>
+
               <button
                 type="button"
                 className="btn-demo-select"
                 onClick={() => handleSelectDemo('entry', 'entry123')}
+                id="demo-select-entry"
               >
                 <div>DATA ENTRY</div>
                 <small>entry / entry123</small>
@@ -150,6 +162,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 type="button"
                 className="btn-demo-select"
                 onClick={() => handleSelectDemo('viewer', 'viewer123')}
+                id="demo-select-viewer"
               >
                 <div>VIEWER</div>
                 <small>viewer / viewer123</small>

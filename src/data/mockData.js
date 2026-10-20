@@ -5,6 +5,14 @@
 
 export const INITIAL_USERS = [
   {
+    id: 'usr_admin',
+    username: 'admin',
+    password: 'admin123',
+    name: 'System Administrator',
+    role: 'ADMIN',
+    department: 'IT / Plant Management'
+  },
+  {
     id: 'usr_entry',
     username: 'entry',
     password: 'entry123',
