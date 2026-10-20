@@ -46,8 +46,7 @@ export const authService = {
               name: foundUser.name,
               role: foundUser.role,
               department: foundUser.department,
-              is_active: true,
-              last_login_at: new Date().toISOString()
+              loginAt: new Date().toISOString()
             },
             { onConflict: 'id' }
           );
@@ -56,6 +55,44 @@ export const authService = {
       }
 
       return { success: true, user: userSession };
+    }
+
+    // 2. Check Supabase users table so any user created via Admin can log in from ANY device
+    try {
+      const { data: dbUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', trimmedUser)
+        .maybeSingle();
+
+      if (dbUser) {
+        if (dbUser.is_active === false) {
+          return { success: false, error: 'Your account has been deactivated. Please contact an Administrator.' };
+        }
+
+        // Check password if stored, or allow demo password format
+        if (dbUser.password_hash && dbUser.password_hash !== password) {
+          return { success: false, error: 'Invalid password. Please check your credentials.' };
+        }
+
+        const userSession = {
+          id: dbUser.id,
+          username: dbUser.username,
+          name: dbUser.name || dbUser.username,
+          role: (dbUser.role || 'VIEWER').toUpperCase(),
+          department: dbUser.department || 'Refinishing Dept',
+          loginAt: new Date().toISOString()
+        };
+        Storage.setCurrentUser(userSession);
+
+        try {
+          await supabase.from('users').update({ loginAt: new Date().toISOString() }).eq('id', dbUser.id);
+        } catch (_) {}
+
+        return { success: true, user: userSession };
+      }
+    } catch (e) {
+      // Continue to Supabase Auth check
     }
 
     // 2. If entered an email format, attempt Supabase Auth
